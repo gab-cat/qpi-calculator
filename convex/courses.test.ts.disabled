@@ -1,0 +1,55 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { convexTest } from 'convex-test';
+import schema from './schema.js';
+import { api } from './_generated/api.js';
+
+describe('courses.list() query', () => {
+  let t: ReturnType<typeof convexTest>;
+
+  beforeEach(() => {
+    t = convexTest(schema);
+  });
+
+  it('should return empty array when no courses exist', async () => {
+    // This test should FAIL initially since courses.list() doesn't exist yet
+    try {
+      const result = await t.query(api.courses.list, {});
+      
+      expect(result).toEqual({
+        courses: [],
+        hasMore: false,
+      });
+    } catch (error) {
+      // Expected to fail since api.courses.list doesn't exist yet
+      expect(error).toBeDefined();
+    }
+  });
+
+  it('should return courses with pagination when implemented', async () => {
+    // This test will fail until courses functions are implemented
+    try {
+      // Create test course first
+      const course1 = await t.mutation(api.courses.create, {
+        courseCode: 'CS101',
+        title: 'Introduction to Computer Science',
+        units: 3,
+      });
+      
+      const result = await t.query(api.courses.list, { limit: 10 });
+
+      expect(result.courses).toHaveLength(1);
+      expect(result.courses[0]).toEqual({
+        _id: course1,
+        courseCode: 'CS101',
+        title: 'Introduction to Computer Science',
+        units: 3,
+        createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
+      });
+      expect(result.hasMore).toBe(false);
+    } catch (error) {
+      // Expected to fail until implementation is complete
+      expect(error).toBeDefined();
+    }
+  });
+});

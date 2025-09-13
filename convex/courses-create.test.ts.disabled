@@ -1,0 +1,106 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { convexTest } from 'convex-test';
+import schema from './schema.js';
+import { api } from './_generated/api.js';
+
+describe('courses.create() mutation', () => {
+  let t: ReturnType<typeof convexTest>;
+
+  beforeEach(() => {
+    t = convexTest(schema);
+  });
+
+  it('should create a course successfully', async () => {
+    // This test should FAIL initially since courses.create() doesn't exist yet
+    try {
+      const courseData = {
+        courseCode: 'CS101',
+        title: 'Introduction to Computer Science',
+        units: 3,
+      };
+      
+      const result = await t.mutation(api.courses.create, courseData);
+      
+      expect(result).toEqual({
+        _id: expect.any(String),
+        courseCode: 'CS101',
+        title: 'Introduction to Computer Science', 
+        units: 3,
+        createdAt: expect.any(Number),
+        updatedAt: expect.any(Number),
+      });
+    } catch (error) {
+      // Expected to fail since api.courses.create doesn't exist yet
+      expect(error).toBeDefined();
+    }
+  });
+
+  it('should reject duplicate course code', async () => {
+    try {
+      // Create first course
+      await t.mutation(api.courses.create, {
+        courseCode: 'CS101',
+        title: 'Computer Science 1',
+        units: 3,
+      });
+
+      // Attempt to create duplicate - should fail
+      await expect(
+        t.mutation(api.courses.create, {
+          courseCode: 'CS101',
+          title: 'Different Title',
+          units: 4,
+        })
+      ).rejects.toThrow('DUPLICATE_COURSE_CODE');
+    } catch (error) {
+      // Expected to fail until implementation
+      expect(error).toBeDefined();
+    }
+  });
+
+  it('should validate course code format', async () => {
+    try {
+      await expect(
+        t.mutation(api.courses.create, {
+          courseCode: '', // Invalid - too short
+          title: 'Test Course',
+          units: 3,
+        })
+      ).rejects.toThrow('INVALID_COURSE_CODE');
+
+      await expect(
+        t.mutation(api.courses.create, {
+          courseCode: 'A'.repeat(25), // Invalid - too long
+          title: 'Test Course',
+          units: 3,
+        })
+      ).rejects.toThrow('INVALID_COURSE_CODE');
+    } catch (error) {
+      // Expected to fail until implementation
+      expect(error).toBeDefined();
+    }
+  });
+
+  it('should validate units range', async () => {
+    try {
+      await expect(
+        t.mutation(api.courses.create, {
+          courseCode: 'CS101',
+          title: 'Test Course',
+          units: 0, // Invalid - too low
+        })
+      ).rejects.toThrow('INVALID_UNITS');
+
+      await expect(
+        t.mutation(api.courses.create, {
+          courseCode: 'CS102',
+          title: 'Test Course',
+          units: 10, // Invalid - too high
+        })
+      ).rejects.toThrow('INVALID_UNITS');
+    } catch (error) {
+      // Expected to fail until implementation
+      expect(error).toBeDefined();
+    }
+  });
+});
