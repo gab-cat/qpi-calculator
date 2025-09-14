@@ -196,7 +196,7 @@ export function exportAcademicRecordToCSV(
     summaryLines.push('');
     summaryLines.push('=== ACADEMIC SUMMARY ===');
     summaryLines.push(`Total Units: ${academicRecord.totalUnits || 0}`);
-    summaryLines.push(`Cumulative QPI: ${academicRecord.cumulativeQPI?.toFixed(2) || 'N/A'}`);
+    summaryLines.push(`Cumulative QPI: ${academicRecord.cumulativeQPI?.toFixed(3) || 'N/A'}`);
     summaryLines.push(`Total Years: ${academicRecord.configuration.totalYears}`);
     summaryLines.push(`Includes Summer: ${academicRecord.configuration.includesSummer ? 'Yes' : 'No'}`);
     
@@ -444,7 +444,7 @@ export function exportSemesterSummary(
   lines.push(`Academic Year,${semester.academicYear || 'N/A'}`);
   lines.push(`Year Level,${semester.yearLevel}`);
   lines.push(`Total Units,${semester.totalUnits || 0}`);
-  lines.push(`QPI,${semester.semesterQPI?.toFixed(2) || 'N/A'}`);
+  lines.push(`QPI,${semester.semesterQPI?.toFixed(3) || 'N/A'}`);
   lines.push('');
 
   // Grade records

@@ -143,7 +143,7 @@ export function GradeTable({
               <div className="flex items-center gap-1">
                 <Calculator className="h-4 w-4 text-muted-foreground" />
                 <span className="font-bold text-lg">
-                  {semesterSummary.qpi.toFixed(2)}
+                  {semesterSummary.qpi.toFixed(3)}
                 </span>
                 <span className="text-muted-foreground">QPI</span>
               </div>

@@ -100,13 +100,13 @@ export function QPISummary({
                 {statistics.trend.direction === 'up' && (
                   <>
                     <TrendingUp className="h-4 w-4 text-green-500" />
-                    <span className="text-green-600">+{statistics.trend.change.toFixed(2)}</span>
+                    <span className="text-green-600">+{statistics.trend.change.toFixed(3)}</span>
                   </>
                 )}
                 {statistics.trend.direction === 'down' && (
                   <>
                     <TrendingDown className="h-4 w-4 text-red-500" />
-                    <span className="text-red-600">-{statistics.trend.change.toFixed(2)}</span>
+                    <span className="text-red-600">-{statistics.trend.change.toFixed(3)}</span>
                   </>
                 )}
                 {statistics.trend.direction === 'stable' && (
@@ -121,7 +121,7 @@ export function QPISummary({
           <div className="text-center space-y-3 sm:space-y-4">
             <div className="relative">
               <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
-                {statistics.cumulativeQPI.toFixed(2)}
+                {statistics.cumulativeQPI.toFixed(3)}
               </div>
               <div className="text-sm text-muted-foreground mt-1">
                 Cumulative QPI
@@ -185,7 +185,7 @@ export function QPISummary({
                 <Target className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Avg Yearly</span>
               </div>
-              <div className="text-xl font-semibold">{statistics.averageYearlyQPI.toFixed(2)}</div>
+              <div className="text-xl font-semibold">{statistics.averageYearlyQPI.toFixed(3)}</div>
             </div>
           </div>
         </CardContent>
@@ -211,9 +211,9 @@ export function QPISummary({
 
                     <div className="flex items-center justify-between sm:justify-end gap-4">
                       <div className="text-left sm:text-right">
-                        <div className="text-lg font-semibold">
-                          {yearData.yearlyQPI?.toFixed(2) || 'N/A'}
-                        </div>
+                      <div className="text-lg font-semibold">
+                        {yearData.yearlyQPI?.toFixed(3) || 'N/A'}
+                      </div>
                         <div className="text-xs text-muted-foreground">Yearly QPI</div>
                       </div>
 
@@ -236,7 +236,7 @@ export function QPISummary({
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">1st Semester</span>
                           <Badge variant="outline" className="text-xs">
-                            {yearData.firstSemQPI.toFixed(2)}
+                            {yearData.firstSemQPI.toFixed(3)}
                           </Badge>
                         </div>
                       )}
@@ -244,7 +244,7 @@ export function QPISummary({
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">2nd Semester</span>
                           <Badge variant="outline" className="text-xs">
-                            {yearData.secondSemQPI.toFixed(2)}
+                            {yearData.secondSemQPI.toFixed(3)}
                           </Badge>
                         </div>
                       )}
@@ -252,7 +252,7 @@ export function QPISummary({
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Summer</span>
                           <Badge variant="outline" className="text-xs">
-                            {yearData.summerQPI.toFixed(2)}
+                            {yearData.summerQPI.toFixed(3)}
                           </Badge>
                         </div>
                       )}

@@ -205,7 +205,7 @@ export function CSVExporter({
             </div>
             <div>
               <div className="text-2xl font-bold">
-                {academicRecord.cumulativeQPI?.toFixed(2) || 'N/A'}
+                {academicRecord.cumulativeQPI?.toFixed(3) || 'N/A'}
               </div>
               <div className="text-sm text-muted-foreground">Current QPI</div>
             </div>

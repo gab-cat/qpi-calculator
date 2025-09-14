@@ -785,7 +785,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                         </Badge>
                         {semester.semesterQPI ? (
                           <div className="text-xs font-medium">
-                            {semester.semesterQPI.toFixed(2)}
+                            {semester.semesterQPI.toFixed(3)}
                           </div>
                         ): null}
                       </div>
