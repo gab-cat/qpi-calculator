@@ -208,10 +208,10 @@ export function GradeTable({
         ) : (
           <div ref={parent} className="space-y-2">
             {grades.map((grade, index) => (
-              <div key={grade.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+              <div key={grade.id} className="group flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                 {/* Reorder Controls */}
                 {!readOnly && onReorderGrades && (
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <Button
                       variant="ghost"
                       size="sm"
