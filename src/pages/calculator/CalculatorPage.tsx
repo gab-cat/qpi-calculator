@@ -745,13 +745,13 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                   {semesters.length > 0 && (
                     <Button
                       variant="ghost"
-                      size="sm"
+                      size="default"
                       onClick={() => handleCreateTemplateFromAllSemesters()}
                       title="Create Template from All Semesters"
-                      className="h-8 w-8 p-0"
+                      className="p-0"
                     >
                       <BookTemplate className="h-4 w-4" />
-                      <span className="sm:inline">Create this semester as a template</span>
+                      <span className="sm:inline">Create as template</span>
                     </Button>
                   )}
                 </div>
