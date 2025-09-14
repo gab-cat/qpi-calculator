@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Plus, Calculator, Upload, GraduationCap, BookTemplate, Eye, Moon, Sun, Settings, RotateCcw, Download, Edit, Trash2 } from 'lucide-react';
+import { Plus, Calculator, Upload, GraduationCap, BookTemplate, Eye, Moon, Sun, Settings, RotateCcw, Download, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -29,6 +29,7 @@ import { cn, useQueryWithStatus } from '@/lib/utils';
 import { CSVExporter } from '@/components/csv-handler/CSVExporter';
 import { api } from '../../../convex/_generated/api';
 import type { Id } from '../../../convex/_generated/dataModel';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 
 interface CalculatorPageProps {
   initialData?: {
@@ -53,6 +54,8 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
     loadTemplateCourses,
     removeGrade,
     removeSemester,
+    reorderGrades,
+    reorderSemesters,
   } = useGradeStore();
   
   const {
@@ -88,6 +91,12 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
     academicYear: new Date().getFullYear().toString(),
     semesterType: 'first' as 'first' | 'second' | 'summer',
     yearLevel: 1,
+  });
+
+  const [parent] = useAutoAnimate({
+    duration: 300,
+    easing: 'ease-in-out',
+    disrespectUserMotionPreference: false,
   });
 
 
@@ -524,6 +533,30 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
     }
   };
 
+  const handleMoveSemesterUp = (semesterId: string) => {
+    const currentOrder = semesters.map(s => s.id);
+    const currentIndex = currentOrder.indexOf(semesterId);
+
+    if (currentIndex > 0) {
+      const newOrder = [...currentOrder];
+      [newOrder[currentIndex - 1], newOrder[currentIndex]] = [newOrder[currentIndex], newOrder[currentIndex - 1]];
+      // Use setTimeout to ensure DOM updates happen in next tick for auto animate
+      setTimeout(() => reorderSemesters(newOrder), 0);
+    }
+  };
+
+  const handleMoveSemesterDown = (semesterId: string) => {
+    const currentOrder = semesters.map(s => s.id);
+    const currentIndex = currentOrder.indexOf(semesterId);
+
+    if (currentIndex < currentOrder.length - 1) {
+      const newOrder = [...currentOrder];
+      [newOrder[currentIndex], newOrder[currentIndex + 1]] = [newOrder[currentIndex + 1], newOrder[currentIndex]];
+      // Use setTimeout to ensure DOM updates happen in next tick for auto animate
+      setTimeout(() => reorderSemesters(newOrder), 0);
+    }
+  };
+
   const handleCreateSemester = async () => {
     try {
       // Initialize academic record if not exists
@@ -556,7 +589,11 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
   };
 
   const currentSemester = selectedSemester ? semesters.find(s => s.id === selectedSemester) : null;
-  const currentGrades = selectedSemester ? grades.filter(g => g.semesterId === selectedSemester) : [];
+  const currentGrades = selectedSemester && currentSemester 
+    ? currentSemester.grades
+        .map(gradeId => grades.find(g => g.id === gradeId))
+        .filter((grade): grade is GradeRecord => grade !== undefined)
+    : [];
 
   return (
     <>
@@ -757,8 +794,9 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {semesters.map((semester) => (
+            <CardContent className="space-y-2" >
+              <div ref={parent}>
+              {semesters.map((semester, index) => (
                 <div
                   key={semester.id}
                   className={`group p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -769,25 +807,61 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                   onClick={() => setSelectedSemester(semester.id)}
                 >
                   <div className="flex items-center justify-between">
+                    {/* Reorder Controls */}
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMoveSemesterUp(semester.id);
+                        }}
+                        disabled={index === 0}
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground touch-manipulation"
+                        title="Move up"
+                      >
+                        <ChevronUp className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMoveSemesterDown(semester.id);
+                        }}
+                        disabled={index === semesters.length - 1}
+                        className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground touch-manipulation"
+                        title="Move down"
+                      >
+                        <ChevronDown className="h-3 w-3" />
+                      </Button>
+                    </div>
+
                     <div className="space-y-1 flex-1">
                       <div className={cn('font-bold text-sm', selectedSemester === semester.id && 'text-primary')}>
-                        {semester.semesterType === 'first' ? '1st' :
-                         semester.semesterType === 'second' ? '2nd' : 'Summer'} Sem
+                        {semester.yearLevel === 1 ? '1st Year' :
+                         semester.yearLevel === 2 ? '2nd Year' :
+                         semester.yearLevel === 3 ? '3rd Year' :
+                         semester.yearLevel === 4 ? '4th Year' :
+                         semester.yearLevel === 5 ? '5th Year' :
+                         `${semester.yearLevel}th Year`}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {semester.academicYear}
+                        {semester.semesterType === 'first' ? '1st' :
+                         semester.semesterType === 'second' ? '2nd' : 'Summer'} Sem
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-right space-y-1">
-                        <Badge variant="outline" className="text-xs">
-                          Year {semester.yearLevel}
-                        </Badge>
                         {semester.semesterQPI ? (
-                          <div className="text-xs font-medium">
-                            {semester.semesterQPI.toFixed(3)}
-                          </div>
-                        ): null}
+                          <Badge variant="outline" className="text-xs">
+                            {semester.semesterQPI.toFixed(3)} QPI
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            No QPI
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -819,6 +893,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                   </div>
                 </div>
               ))}
+              </div>
 
               {semesters.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
@@ -849,6 +924,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
               onGradeDelete={handleDeleteGrade}
               onAddCourse={handleAddCourse}
               onOpenCourseDialog={() => setIsCourseSelectorOpen(true)}
+              onReorderGrades={reorderGrades}
               showCalculations={true}
             />
           ) : (

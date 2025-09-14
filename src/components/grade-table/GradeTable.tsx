@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Trash2, Plus, Calculator, BookOpen, GraduationCap } from 'lucide-react';
+import { Trash2, Plus, Calculator, BookOpen, GraduationCap, ChevronUp, ChevronDown } from 'lucide-react';
 import type { SemesterRecord, GradeRecord } from '@/lib/types/academic-types';
 import { convertNumericalToLetter, convertNumericalToGradePoint, isValidNumericalGrade } from '@/lib/calculations/grade-scale';
 import { calculateQPI } from '@/lib/calculations/qpi-calculator';
@@ -19,6 +19,7 @@ interface GradeTableProps {
   onGradeDelete: (gradeId: string) => void;
   onAddCourse: (courseInfo: { courseId: string; courseCode: string; title: string; units: number }) => void;
   onOpenCourseDialog?: () => void;
+  onReorderGrades?: (semesterId: string, gradeIds: string[]) => void;
   readOnly?: boolean;
   showCalculations?: boolean;
 }
@@ -31,12 +32,14 @@ interface GradeTableState {
 }
 
 export function GradeTable({
+  semesterId,
   semester,
   grades,
   onGradeUpdate,
   onGradeDelete,
   onAddCourse,
   onOpenCourseDialog,
+  onReorderGrades,
   readOnly = false,
   showCalculations = true
 }: GradeTableProps) {
@@ -46,7 +49,11 @@ export function GradeTable({
     validationErrors: {},
     isCalculating: false,
   });
-  const [parent] = useAutoAnimate();
+  const [parent] = useAutoAnimate({
+    duration: 300,
+    easing: 'ease-in-out',
+    disrespectUserMotionPreference: false,
+  });
 
   // Calculate semester summary
   const semesterSummary = useMemo(() => {
@@ -114,6 +121,34 @@ export function GradeTable({
     return `${grade} (${letterGrade})`;
   };
 
+  const handleMoveUp = useCallback((gradeId: string) => {
+    if (!onReorderGrades) return;
+
+    const currentOrder = grades.map(g => g.id);
+    const currentIndex = currentOrder.indexOf(gradeId);
+
+    if (currentIndex > 0) {
+      const newOrder = [...currentOrder];
+      [newOrder[currentIndex - 1], newOrder[currentIndex]] = [newOrder[currentIndex], newOrder[currentIndex - 1]];
+      // Use setTimeout to ensure DOM updates happen in next tick for auto animate
+      setTimeout(() => onReorderGrades(semesterId, newOrder), 0);
+    }
+  }, [grades, onReorderGrades, semesterId]);
+
+  const handleMoveDown = useCallback((gradeId: string) => {
+    if (!onReorderGrades) return;
+
+    const currentOrder = grades.map(g => g.id);
+    const currentIndex = currentOrder.indexOf(gradeId);
+
+    if (currentIndex < currentOrder.length - 1) {
+      const newOrder = [...currentOrder];
+      [newOrder[currentIndex], newOrder[currentIndex + 1]] = [newOrder[currentIndex + 1], newOrder[currentIndex]];
+      // Use setTimeout to ensure DOM updates happen in next tick for auto animate
+      setTimeout(() => onReorderGrades(semesterId, newOrder), 0);
+    }
+  }, [grades, onReorderGrades, semesterId]);
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-4">
@@ -172,8 +207,34 @@ export function GradeTable({
           </Alert>
         ) : (
           <div ref={parent} className="space-y-2">
-            {grades.map((grade) => (
+            {grades.map((grade, index) => (
               <div key={grade.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                {/* Reorder Controls */}
+                {!readOnly && onReorderGrades && (
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleMoveUp(grade.id)}
+                      disabled={index === 0}
+                      className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground touch-manipulation"
+                      title="Move up"
+                    >
+                      <ChevronUp className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleMoveDown(grade.id)}
+                      disabled={index === grades.length - 1}
+                      className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground touch-manipulation"
+                      title="Move down"
+                    >
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+                
                 <div className="flex-1 space-y-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-bold text-sm">{grade.courseCode}</span>

@@ -36,11 +36,13 @@ interface GradeStoreState {
   addGrades: (grades: Omit<GradeRecord, 'id' | 'createdAt' | 'updatedAt'>[]) => void;
   updateGrade: (gradeId: string, updates: Partial<GradeRecord>) => void;
   removeGrade: (gradeId: string) => void;
+  reorderGrades: (semesterId: string, gradeIds: string[]) => void;
   
   // Actions - Semester Management
   addSemester: (semester: Omit<SemesterRecord, 'id' | 'createdAt' | 'updatedAt' | 'grades'>) => string;
   updateSemester: (semesterId: string, updates: Partial<SemesterRecord>) => void;
   removeSemester: (semesterId: string) => void;
+  reorderSemesters: (semesterIds: string[]) => void;
   
   // Actions - Academic Record Management
   initializeAcademicRecord: (config: AcademicRecord['configuration']) => void;
@@ -257,6 +259,25 @@ export const useGradeStore = create<GradeStoreState>()(
           get().recalculateAll();
           get().saveData();
         },
+
+        reorderGrades: (semesterId, gradeIds) => {
+          set((state) => {
+            const updatedSemesters = state.semesters.map(semester =>
+              semester.id === semesterId
+                ? {
+                    ...semester,
+                    grades: gradeIds,
+                    updatedAt: Date.now()
+                  }
+                : semester
+            );
+
+            return { semesters: updatedSemesters };
+          });
+
+          // Small delay to ensure auto animate can detect the changes
+          setTimeout(() => get().saveData(), 10);
+        },
         
         // Semester Management
         addSemester: (semesterData) => {
@@ -335,6 +356,36 @@ export const useGradeStore = create<GradeStoreState>()(
           
           get().recalculateAll();
           get().saveData();
+        },
+
+        reorderSemesters: (semesterIds) => {
+          set((state) => {
+            // Create a map of existing semesters for quick lookup
+            const semesterMap = new Map(state.semesters.map(s => [s.id, s]));
+
+            // Reorder while preserving object references
+            const reorderedSemesters = semesterIds
+              .map(id => semesterMap.get(id))
+              .filter((semester): semester is SemesterRecord => semester !== undefined);
+
+            // Update academic record with new order
+            let updatedAcademicRecord = state.academicRecord;
+            if (updatedAcademicRecord) {
+              updatedAcademicRecord = {
+                ...updatedAcademicRecord,
+                semesters: semesterIds,
+                updatedAt: Date.now(),
+              };
+            }
+
+            return {
+              semesters: reorderedSemesters,
+              academicRecord: updatedAcademicRecord,
+            };
+          });
+
+          // Small delay to ensure auto animate can detect the changes
+          setTimeout(() => get().saveData(), 10);
         },
         
         // Academic Record Management
