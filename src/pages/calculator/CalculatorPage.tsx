@@ -795,7 +795,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
               </div>
             </CardHeader>
             <CardContent className="space-y-2" >
-              <div ref={parent}>
+              <div className="space-y-1" ref={parent}>
               {semesters.map((semester, index) => (
                 <div
                   key={semester.id}
