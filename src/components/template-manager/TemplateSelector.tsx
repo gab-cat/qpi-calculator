@@ -88,7 +88,7 @@ export function TemplateSelector({
       </div>
 
       {/* Template Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {templates.map((template) => {
           const stats = getTemplateStats(template);
           const isSelected = selectedTemplateId === template._id;
@@ -96,7 +96,7 @@ export function TemplateSelector({
           return (
             <Card
               key={template._id}
-              className={`cursor-pointer transition-colors hover:bg-accent/50 ${
+              className={`cursor-pointer transition-colors hover:bg-accent/50 min-h-[160px] ${
                 isSelected ? 'ring-2 ring-primary bg-primary/5' : ''
               }`}
               onClick={() => onTemplateSelect(template._id)}
@@ -104,7 +104,7 @@ export function TemplateSelector({
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-base line-clamp-1">
+                    <CardTitle className="text-base break-words leading-tight">
                       {template.name}
                     </CardTitle>
                     {template.description && (

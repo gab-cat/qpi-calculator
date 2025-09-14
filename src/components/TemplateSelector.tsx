@@ -158,11 +158,11 @@ export function TemplateSelector({
                 <span className="ml-2 text-sm text-muted-foreground">Loading templates...</span>
               </div>
             ) : (
-              <div ref={parent} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div ref={parent} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
                 {templates.map((template) => (
                   <Card
                     key={template._id}
-                    className={`cursor-pointer transition-all pt-6 duration-200 hover:border-primary/20 ${
+                    className={`cursor-pointer transition-all pt-6 duration-200 hover:border-primary/20 min-h-[140px] ${
                       selectedTemplate === template._id
                         ? 'ring-1 ring-primary border-primary bg-primary/5'
                         : 'hover:shadow-sm'
@@ -170,8 +170,8 @@ export function TemplateSelector({
                     onClick={() => setSelectedTemplate(template._id)}
                   >
                     <CardHeader className="py-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <CardTitle className="text-base leading-tight truncate flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-base leading-tight flex-1 break-words">
                           {template.name}
                         </CardTitle>
                       </div>
