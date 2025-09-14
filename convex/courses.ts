@@ -182,7 +182,7 @@ export const create = mutation({
   args: {
     courseCode: v.string(),
     title: v.string(),
-    units: v.number(),
+    units: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     // Validate course code format
@@ -195,8 +195,8 @@ export const create = mutation({
       throw new Error("INVALID_TITLE");
     }
     
-    // Validate units range
-    if (args.units <= 0 || args.units > 6.0) {
+    // Validate units range if provided
+    if (args.units !== undefined && (args.units <= 0 || args.units > 6.0)) {
       throw new Error("INVALID_UNITS");
     }
     
@@ -215,7 +215,7 @@ export const create = mutation({
     const courseId = await ctx.db.insert("courses", {
       courseCode: args.courseCode,
       title: args.title,
-      units: args.units,
+      units: args.units ?? 3,
       createdAt: now,
       updatedAt: now,
     });
@@ -232,7 +232,7 @@ export const massCreate = mutation({
     courses: v.array(v.object({
       courseCode: v.string(),
       title: v.string(),
-      units: v.number(),
+      units: v.optional(v.number()),
       createdAt: v.optional(v.number()),
       updatedAt: v.optional(v.number()),
     })),
@@ -245,7 +245,7 @@ export const massCreate = mutation({
         courseData: {
           courseCode: string;
           title: string;
-          units: number;
+          units?: number;
         };
         reason: string;
         index: number;
@@ -254,7 +254,7 @@ export const massCreate = mutation({
         courseData: {
           courseCode: string;
           title: string;
-          units: number;
+          units?: number;
         };
         error: string;
         index: number;
@@ -323,8 +323,8 @@ export const massCreate = mutation({
           throw new Error("INVALID_TITLE");
         }
 
-        // Validate units range
-        if (courseData.units <= 0 || courseData.units > 6.0) {
+        // Validate units range if provided
+        if (courseData.units !== undefined && (courseData.units <= 0 || courseData.units > 6.0)) {
           throw new Error("INVALID_UNITS");
         }
 
@@ -333,7 +333,7 @@ export const massCreate = mutation({
         const courseId = await ctx.db.insert("courses", {
           courseCode: courseData.courseCode,
           title: courseData.title,
-          units: courseData.units,
+          units: courseData.units ?? 3,
           createdAt: now,
           updatedAt: now,
         });
