@@ -16,21 +16,21 @@ import {
 
 export function CalculatorFooter() {
   return (
-    <footer className="mt-12 border-t bg-gradient-to-r from-background via-muted/20 to-background">
-      <div className="container mx-auto py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
+    <footer className="mt-8 sm:mt-12 border-t bg-gradient-to-r from-background via-muted/20 to-background">
+      <div className="container mx-auto py-6 sm:py-8 px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+
           {/* What is this page */}
           <Card className="border-0 bg-gradient-to-br from-primary/5 to-primary/10">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Calculator className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg">QPI Calculator</h3>
+                <h3 className="font-semibold text-base sm:text-lg">QPI Calculator</h3>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                A comprehensive tool to track your academic performance, calculate your Quality Point Index (QPI), 
+                A comprehensive tool to track your academic performance, calculate your Quality Point Index (QPI),
                 and monitor your progress across semesters. Perfect for students who want to stay on top of their grades.
               </p>
               <div className="flex items-center gap-2 mt-3">
@@ -44,12 +44,12 @@ export function CalculatorFooter() {
 
           {/* How to use */}
           <Card className="border-0 bg-gradient-to-br from-blue-500/5 to-blue-600/10">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-blue-500/10">
                   <BookOpen className="h-5 w-5 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-lg">How to Use</h3>
+                <h3 className="font-semibold text-base sm:text-lg">How to Use</h3>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-start gap-2">
@@ -74,28 +74,28 @@ export function CalculatorFooter() {
 
           {/* Data Management */}
           <Card className="border-0 bg-gradient-to-br from-green-500/5 to-green-600/10">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-green-500/10">
                   <Database className="h-5 w-5 text-green-600" />
                 </div>
-                <h3 className="font-semibold text-lg">Data Management</h3>
+                <h3 className="font-semibold text-base sm:text-lg">Data Management</h3>
               </div>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Download className="h-4 w-4 text-green-600" />
+                  <Download className="h-4 w-4 text-green-600 flex-shrink-0" />
                   <span><strong>Export:</strong> Download your data as CSV/Excel</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Upload className="h-4 w-4 text-green-600" />
+                  <Upload className="h-4 w-4 text-green-600 flex-shrink-0" />
                   <span><strong>Import:</strong> Upload existing grade sheets</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Eye className="h-4 w-4 text-green-600" />
+                  <Eye className="h-4 w-4 text-green-600 flex-shrink-0" />
                   <span><strong>Overview:</strong> View comprehensive analytics</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-green-600" />
+                  <Sparkles className="h-4 w-4 text-green-600 flex-shrink-0" />
                   <span><strong>Templates:</strong> Save and reuse configurations</span>
                 </div>
               </div>
@@ -104,12 +104,12 @@ export function CalculatorFooter() {
 
           {/* Privacy & Security */}
           <Card className="border-0 bg-gradient-to-br from-purple-500/5 to-purple-600/10">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 rounded-lg bg-purple-500/10">
                   <Shield className="h-5 w-5 text-purple-600" />
                 </div>
-                <h3 className="font-semibold text-lg">Privacy & Security</h3>
+                <h3 className="font-semibold text-base sm:text-lg">Privacy & Security</h3>
               </div>
               <div className="space-y-3 text-sm text-muted-foreground">
                 <div className="flex items-start gap-2">
@@ -132,35 +132,35 @@ export function CalculatorFooter() {
         </div>
 
         {/* Bottom section with additional info */}
-        <div className="mt-8 pt-6 border-t border-border/50">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
+        <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border/50">
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3 sm:gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                 <span>All data stored locally</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
                 <span>No account required</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
                 <span>Completely free</span>
               </div>
             </div>
-            
-            <div className="flex flex-col md:flex-row items-center gap-4">
+
+            <div className="flex flex-col items-center gap-4">
               <a
                 href="https://github.com/gab-cat/qpi-calculator"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group touch-manipulation"
               >
                 <Github className="h-4 w-4 group-hover:scale-110 transition-transform" />
                 <span>View on GitHub</span>
               </a>
-              
-              <div className="text-xs text-muted-foreground text-center md:text-right">
+
+              <div className="text-xs text-muted-foreground text-center max-w-md">
                 <p>Built with ❤️ for students who want to track their academic journey</p>
                 <p className="mt-1">Your privacy is our priority - no data leaves your device</p>
               </div>

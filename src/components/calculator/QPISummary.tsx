@@ -89,14 +89,14 @@ export function QPISummary({
   const qpiPercentage = Math.min((statistics.cumulativeQPI / 4.0) * 100, 100);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Main QPI Display */}
       <Card className="relative overflow-hidden">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <CardTitle className="text-lg">Academic Performance</CardTitle>
             {statistics.trend && (
-              <div className="flex items-center gap-1 text-sm">
+              <div className="flex items-center gap-1 text-sm self-start sm:self-auto">
                 {statistics.trend.direction === 'up' && (
                   <>
                     <TrendingUp className="h-4 w-4 text-green-500" />
@@ -116,37 +116,39 @@ export function QPISummary({
             )}
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* Central QPI Display */}
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-3 sm:space-y-4">
             <div className="relative">
-              <div className="text-6xl font-bold text-primary">
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary">
                 {statistics.cumulativeQPI.toFixed(2)}
               </div>
               <div className="text-sm text-muted-foreground mt-1">
                 Cumulative QPI
               </div>
-              
+
               {/* QPI Progress Ring */}
-              <div className="absolute -inset-4 rounded-full">
-                <Progress 
-                  value={qpiPercentage} 
+              <div className="absolute -inset-3 sm:-inset-4 rounded-full">
+                <Progress
+                  value={qpiPercentage}
                   className="w-full h-2"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Badge 
+              <Badge
                 variant={getGradeBadgeVariant(statistics.cumulativeQPI)}
                 className="text-sm px-3 py-1"
               >
                 {getPerformanceLevel(statistics.cumulativeQPI)}
               </Badge>
-              
-              <div className="flex justify-center gap-4 text-sm text-muted-foreground">
+
+              <div className="flex flex-col sm:flex-row sm:justify-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                 <span>{statistics.totalUnits} total units</span>
-                <Separator orientation="vertical" className="h-4" />
+                <div className="hidden sm:block">
+                  <Separator orientation="vertical" className="h-4" />
+                </div>
                 <span>{statistics.completedYears} years completed</span>
               </div>
             </div>
@@ -199,28 +201,28 @@ export function QPISummary({
             <div ref={parent} className="space-y-3">
               {statistics.yearlyData.map((yearData, index) => (
                 <div key={yearData.academicYear} className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{yearData.academicYear}</span>
                       <Badge variant="outline" className="text-xs">
                         Year {index + 1}
                       </Badge>
                     </div>
-                    
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
+
+                    <div className="flex items-center justify-between sm:justify-end gap-4">
+                      <div className="text-left sm:text-right">
                         <div className="text-lg font-semibold">
                           {yearData.yearlyQPI?.toFixed(2) || 'N/A'}
                         </div>
                         <div className="text-xs text-muted-foreground">Yearly QPI</div>
                       </div>
-                      
+
                       {comparisonMode === 'semester' && onDrillDown && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onDrillDown(yearData.academicYear, 'all')}
-                          className="text-xs"
+                          className="text-xs touch-manipulation"
                         >
                           View Details
                         </Button>
@@ -229,7 +231,7 @@ export function QPISummary({
                   </div>
 
                   {comparisonMode === 'semester' && (
-                    <div className="pl-4 space-y-1 border-l-2 border-muted">
+                    <div className="pl-2 sm:pl-4 space-y-1 border-l-2 border-muted">
                       {yearData.firstSemQPI && (
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">1st Semester</span>
@@ -277,11 +279,11 @@ export function QPISummary({
             <div className="space-y-4">
               {/* Years Progress */}
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 text-sm">
                   <span>Academic Years</span>
-                  <span>{statistics.completedYears}/{academicRecord.configuration.totalYears}</span>
+                  <span className="font-medium">{statistics.completedYears}/{academicRecord.configuration.totalYears}</span>
                 </div>
-                <Progress 
+                <Progress
                   value={(statistics.completedYears / academicRecord.configuration.totalYears) * 100}
                   className="w-full"
                 />
@@ -290,8 +292,8 @@ export function QPISummary({
               {/* Estimated Graduation */}
               <div className="text-center pt-2">
                 <div className="text-sm text-muted-foreground">
-                  {statistics.completedYears >= academicRecord.configuration.totalYears 
-                    ? "🎉 Eligible for graduation!" 
+                  {statistics.completedYears >= academicRecord.configuration.totalYears
+                    ? "🎉 Eligible for graduation!"
                     : `${academicRecord.configuration.totalYears - statistics.completedYears} year(s) remaining`}
                 </div>
               </div>

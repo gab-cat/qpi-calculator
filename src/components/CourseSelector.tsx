@@ -41,6 +41,7 @@ export function CourseSelector({
   multiSelect = true
 }: CourseSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('select');
   const [courseForm, setCourseForm] = useState({
     courseCode: '',
@@ -72,7 +73,7 @@ export function CourseSelector({
   // Query courses from Convex with search using enhanced status
   const coursesQuery = useQueryWithStatus(
     api.courses.list,
-    searchQuery ? { search: searchQuery, limit: 50 } : { limit: 50 }
+    debouncedSearchQuery ? { search: debouncedSearchQuery, limit: 50 } : { limit: 50 }
   );
 
   const { data: coursesData, isPending: isLoading, error } = coursesQuery;
@@ -81,6 +82,7 @@ export function CourseSelector({
   useEffect(() => {
     if (open) {
       setSearchQuery('');
+      setDebouncedSearchQuery('');
       setActiveTab('select');
       setCourseForm({
         courseCode: '',
@@ -92,15 +94,24 @@ export function CourseSelector({
     }
   }, [open]);
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // Filter courses based on search query (client-side fallback)
   const filteredCourses = useMemo(() => {
     const courseList = coursesData?.courses || [];
-    if (!searchQuery) return courseList;
+    if (!debouncedSearchQuery) return courseList;
     return courseList.filter(course =>
-      course.courseCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.title.toLowerCase().includes(searchQuery.toLowerCase())
+      course.courseCode.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+      course.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
     );
-  }, [coursesData?.courses, searchQuery]);
+  }, [coursesData?.courses, debouncedSearchQuery]);
 
   const handleCourseToggle = (course: Course) => {
     if (multiSelect) {
@@ -200,13 +211,13 @@ export function CourseSelector({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[80vh]">
+      <DialogContent className="max-w-5xl w-full max-h-[90vh] mx-2 sm:mx-4 overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <BookOpen className="h-5 w-5" />
             Select Courses
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-sm sm:text-base">
             {multiSelect
               ? "Choose courses to add to this semester"
               : "Select a course to add to this semester"
@@ -245,7 +256,7 @@ export function CourseSelector({
             {/* Selected courses summary */}
             {selectedCount > 0 && (
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-primary/5 rounded-lg">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
                       {selectedCount} course{selectedCount !== 1 ? 's' : ''} selected
@@ -254,21 +265,23 @@ export function CourseSelector({
                       {getTotalUnits()} total units
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col-reverse sm:flex-row gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={clearAllCourses}
+                      className="w-full sm:w-auto"
                     >
-                      <X className="h-4 w-4 mr-2" />
-                      Clear All
+                      <X className="h-4 w-4 sm:mr-2" />
+                      <span className="sm:inline">Clear All</span>
                     </Button>
                     <Button
                       size="sm"
                       onClick={handleSelectCourses}
+                      className="w-full sm:w-auto"
                     >
-                      <Check className="h-4 w-4 mr-2" />
-                      Add Selected
+                      <Check className="h-4 w-4 sm:mr-2" />
+                      <span className="sm:inline">Add Selected</span>
                     </Button>
                   </div>
                 </div>
@@ -280,14 +293,14 @@ export function CourseSelector({
                     {coursesToAdd.map((course) => (
                       <div
                         key={course._id}
-                        className="flex items-center justify-between p-2 bg-muted/50 rounded-md"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-2 bg-muted/50 rounded-md"
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
                           <span className="text-sm font-medium">{course.courseCode}</span>
                           <span className="text-xs text-muted-foreground truncate flex-1">
                             {course.title}
                           </span>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs flex-shrink-0">
                             {course.units} unit{course.units !== 1 ? 's' : ''}
                           </Badge>
                         </div>
@@ -295,7 +308,7 @@ export function CourseSelector({
                           variant="ghost"
                           size="sm"
                           onClick={() => removeCourse(course._id)}
-                          className="h-6 w-6 p-0"
+                          className="h-6 w-6 p-0 self-end sm:self-center touch-manipulation"
                         >
                           <X className="h-3 w-3" />
                         </Button>
@@ -307,7 +320,7 @@ export function CourseSelector({
             )}
 
             {/* Course list */}
-            <ScrollArea className="h-64 border rounded-md">
+            <ScrollArea className="h-64 sm:h-80 border rounded-md">
               {error ? (
                 <Alert className="m-4">
                   <AlertTriangle className="h-4 w-4" />
@@ -321,7 +334,7 @@ export function CourseSelector({
                   <div className="text-sm text-muted-foreground">Loading courses...</div>
                 </div>
               ) : filteredCourses.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
+                <div className="flex flex-col items-center justify-center py-8 text-center px-4">
                   <BookOpen className="h-8 w-8 text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground mb-4">
                     {searchQuery ? `No courses found matching "${searchQuery}"` : 'No courses available'}
@@ -330,6 +343,7 @@ export function CourseSelector({
                     variant="outline"
                     size="sm"
                     onClick={handleCreateNewCourse}
+                    className="w-full sm:w-auto"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create New Course
@@ -342,7 +356,7 @@ export function CourseSelector({
                     return (
                       <div
                         key={course._id}
-                        className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50 ${
+                        className={`flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50 touch-manipulation ${
                           isSelected ? 'bg-primary/5 border-primary' : ''
                         }`}
                         onClick={() => handleCourseToggle(course)}
@@ -351,22 +365,22 @@ export function CourseSelector({
                           <Checkbox
                             checked={isSelected}
                             onChange={() => {}} // Handled by parent div click
-                            className="pointer-events-none"
+                            className="pointer-events-none flex-shrink-0"
                           />
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium text-sm">{course.courseCode}</span>
                             <Badge variant="outline" className="text-xs">
                               {course.units} unit{course.units !== 1 ? 's' : ''}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground truncate">
+                          <p className="text-sm text-muted-foreground line-clamp-2">
                             {course.title}
                           </p>
                         </div>
                         {!multiSelect && isSelected && (
-                          <Check className="h-4 w-4 text-primary" />
+                          <Check className="h-4 w-4 text-primary flex-shrink-0" />
                         )}
                       </div>
                     );
@@ -389,7 +403,7 @@ export function CourseSelector({
                     ...prev,
                     courseCode: e.target.value.toUpperCase()
                   }))}
-                  className={formErrors.courseCode ? 'border-destructive' : ''}
+                  className={`w-full ${formErrors.courseCode ? 'border-destructive' : ''}`}
                   disabled={isCreating}
                 />
                 {formErrors.courseCode && (
@@ -407,7 +421,7 @@ export function CourseSelector({
                     ...prev,
                     title: e.target.value
                   }))}
-                  className={formErrors.title ? 'border-destructive' : ''}
+                  className={`w-full ${formErrors.title ? 'border-destructive' : ''}`}
                   disabled={isCreating}
                 />
                 {formErrors.title && (
@@ -425,7 +439,7 @@ export function CourseSelector({
                   }))}
                   disabled={isCreating}
                 >
-                  <SelectTrigger className={formErrors.units ? 'border-destructive' : ''}>
+                  <SelectTrigger className={`w-full ${formErrors.units ? 'border-destructive' : ''}`}>
                     <SelectValue placeholder="Select units" />
                   </SelectTrigger>
                   <SelectContent>
@@ -448,25 +462,26 @@ export function CourseSelector({
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-4 border-t">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4 border-t">
                 <Button
                   variant="outline"
                   onClick={() => setActiveTab('select')}
                   disabled={isCreating}
+                  className="w-full sm:w-auto"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Select
+                  <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                  <span className="sm:inline">Back to Select</span>
                 </Button>
-                <Button onClick={handleCreateCourse} disabled={isCreating}>
+                <Button onClick={handleCreateCourse} disabled={isCreating} className="w-full sm:w-auto">
                   {isCreating ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Creating...
+                      <Loader2 className="h-4 w-4 sm:mr-2 animate-spin" />
+                      <span className="sm:inline">Creating...</span>
                     </>
                   ) : (
                     <>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Course
+                      <Plus className="h-4 w-4 sm:mr-2" />
+                      <span className="sm:inline">Create Course</span>
                     </>
                   )}
                 </Button>

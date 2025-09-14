@@ -14,57 +14,29 @@ export const list = query({
     // Apply search filter if provided
     if (args.search) {
       const searchLower = args.search.toLowerCase();
-      
-      // Search by course code first (exact match or prefix)
-      const codeResults = await ctx.db
-        .query("courses")
-        .withIndex("by_code_creation")
-        .filter((q) => 
-          q.or(
-            q.eq(q.field("courseCode"), args.search!.toUpperCase()),
-            q.eq(q.field("courseCode"), args.search!.toLowerCase())
-          )
-        )
-        .order("desc")
-        .collect();
-      
-      // Search by title (exact match only - contains search is handled below)
-      const titleResults = await ctx.db
-        .query("courses")
-        .withIndex("by_title_creation")
-        .filter((q) => q.eq(q.field("title"), args.search!))
-        .order("desc")
-        .collect();
-      
-      // Get all courses for title contains search (unfortunately necessary with Convex)
+
+      // Get all courses for case-insensitive contains search (necessary with Convex)
       const allCourses = await ctx.db.query("courses").order("desc").collect();
-      const titleContainsResults = allCourses.filter((course) => 
-        course.title.toLowerCase().includes(searchLower) &&
-        !codeResults.some(cr => cr._id === course._id) // Avoid duplicates
+
+      // Filter courses by search query (case-insensitive contains for both code and title)
+      const filteredCourses = allCourses.filter((course) =>
+        course.courseCode.toLowerCase().includes(searchLower) ||
+        course.title.toLowerCase().includes(searchLower)
       );
-      
-      // Combine and deduplicate results
-      const allSearchResults = [...codeResults, ...titleResults, ...titleContainsResults];
-      const uniqueResults = allSearchResults.filter((course, index, self) => 
-        index === self.findIndex(c => c._id === course._id)
-      );
-      
-      // Sort by creation date (newest first)
-      uniqueResults.sort((a, b) => b.createdAt - a.createdAt);
       
       // Handle pagination for search results
       if (args.cursor) {
         const cursorData = JSON.parse(args.cursor);
         const { lastCreatedAt, lastId } = cursorData;
-        
-        const paginatedResults = uniqueResults.filter(course => 
-          course.createdAt < lastCreatedAt || 
+
+        const paginatedResults = filteredCourses.filter(course =>
+          course.createdAt < lastCreatedAt ||
           (course.createdAt === lastCreatedAt && course._id < lastId)
         );
-        
+
         const pageResults = paginatedResults.slice(0, limit);
         const hasMore = paginatedResults.length > limit;
-        
+
         return {
           courses: pageResults,
           hasMore,
@@ -74,11 +46,11 @@ export const list = query({
           }) : undefined,
         };
       }
-      
+
       // First page of search results
-      const pageResults = uniqueResults.slice(0, limit);
-      const hasMore = uniqueResults.length > limit;
-      
+      const pageResults = filteredCourses.slice(0, limit);
+      const hasMore = filteredCourses.length > limit;
+
       return {
         courses: pageResults,
         hasMore,
@@ -235,7 +207,7 @@ export const create = mutation({
       .first();
     
     if (existingCourse) {
-      throw new Error("DUPLICATE_COURSE_CODE");
+      return existingCourse;
     }
     
     // Create the course
@@ -251,6 +223,144 @@ export const create = mutation({
     // Return the created course
     const course = await ctx.db.get(courseId);
     return course;
+  },
+});
+
+// Mass create courses
+export const massCreate = mutation({
+  args: {
+    courses: v.array(v.object({
+      courseCode: v.string(),
+      title: v.string(),
+      units: v.number(),
+      createdAt: v.optional(v.number()),
+      updatedAt: v.optional(v.number()),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const results: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      created: any[];
+      skipped: Array<{
+        courseData: {
+          courseCode: string;
+          title: string;
+          units: number;
+        };
+        reason: string;
+        index: number;
+      }>;
+      errors: Array<{
+        courseData: {
+          courseCode: string;
+          title: string;
+          units: number;
+        };
+        error: string;
+        index: number;
+      }>;
+    } = {
+      created: [],
+      skipped: [],
+      errors: [],
+    };
+
+    // Validate input array
+    if (!args.courses || args.courses.length === 0) {
+      throw new Error("NO_COURSES_PROVIDED");
+    }
+
+    if (args.courses.length > 100) {
+      throw new Error("TOO_MANY_COURSES");
+    }
+
+    // Get existing course codes for duplicate checking
+    const existingCourses = await ctx.db.query("courses").collect();
+    const existingCodes = new Set(existingCourses.map(course => course.courseCode.toLowerCase()));
+
+    // Track codes we've seen in this batch to detect duplicates within batch
+    const batchCodes = new Set<string>();
+
+    // Process each course
+    for (let i = 0; i < args.courses.length; i++) {
+      const courseData = args.courses[i];
+
+      try {
+        // Validate course code format
+        if (!courseData.courseCode || courseData.courseCode.length < 3 || courseData.courseCode.length > 20) {
+          throw new Error("INVALID_COURSE_CODE");
+        }
+
+        const courseCodeLower = courseData.courseCode.toLowerCase();
+
+        // Check for duplicate within this batch
+        if (batchCodes.has(courseCodeLower)) {
+          console.log(`Skipping course ${courseData.courseCode} (index ${i}): duplicate in batch`);
+          results.skipped.push({
+            courseData,
+            reason: "DUPLICATE_IN_BATCH",
+            index: i,
+          });
+          continue;
+        }
+
+        // Check for duplicate against existing courses
+        if (existingCodes.has(courseCodeLower)) {
+          console.log(`Skipping course ${courseData.courseCode} (index ${i}): already exists`);
+          results.skipped.push({
+            courseData,
+            reason: "ALREADY_EXISTS",
+            index: i,
+          });
+          continue;
+        }
+
+        // Add to batch codes to prevent duplicates within this batch
+        batchCodes.add(courseCodeLower);
+
+        // Validate title
+        if (!courseData.title || courseData.title.length < 1 || courseData.title.length > 200) {
+          throw new Error("INVALID_TITLE");
+        }
+
+        // Validate units range
+        if (courseData.units <= 0 || courseData.units > 6.0) {
+          throw new Error("INVALID_UNITS");
+        }
+
+        // Create the course
+        const now = Date.now();
+        const courseId = await ctx.db.insert("courses", {
+          courseCode: courseData.courseCode,
+          title: courseData.title,
+          units: courseData.units,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        // Get the created course and add to results
+        const course = await ctx.db.get(courseId);
+        if (course) {
+          console.log(`Successfully created course ${courseData.courseCode} (index ${i})`);
+          results.created.push(course);
+          // Add to existing codes to prevent creating duplicates in future iterations
+          existingCodes.add(courseCodeLower);
+        }
+
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "UNKNOWN_ERROR";
+        console.log(`Failed to create course ${courseData.courseCode} (index ${i}): ${errorMessage}`);
+        results.errors.push({
+          courseData,
+          error: errorMessage,
+          index: i,
+        });
+      }
+    }
+
+    console.log(`Mass create summary: ${results.created.length} created, ${results.skipped.length} skipped, ${results.errors.length} failed`);
+
+    return results;
   },
 });
 

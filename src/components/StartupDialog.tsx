@@ -12,18 +12,18 @@ interface StartupDialogProps {
 export function StartupDialog({ open, onOpenChange }: StartupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl w-full max-h-[90vh] overflow-y-auto sm:max-w-6xl">
+      <DialogContent className="max-w-6xl w-full max-h-[95vh] overflow-y-auto mx-2 sm:mx-4 sm:max-w-6xl">
         <DialogHeader className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Calculator className="h-8 w-8 text-primary" />
-            <DialogTitle className="text-2xl">Welcome to QPI Calculator</DialogTitle>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2 mb-2">
+            <Calculator className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <DialogTitle className="text-xl sm:text-2xl">Welcome to QPI Calculator</DialogTitle>
           </div>
-          <DialogDescription className="text-lg">
+          <DialogDescription className="text-base sm:text-lg px-4">
             Your personal academic performance tracker. Calculate your Quality Point Index with ease.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6 px-4">
           {/* How It Works Section */}
           <Card className="w-full">
             <CardHeader>
@@ -37,7 +37,7 @@ export function StartupDialog({ open, onOpenChange }: StartupDialogProps) {
                 This app helps you track your academic performance by calculating your Quality Point Index (QPI).
                 Add your courses, enter grades, and get instant calculations for each semester and your overall academic standing.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
                 <div className="space-y-2">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
                     <PlusCircle className="h-5 w-5 text-primary" />
@@ -56,7 +56,7 @@ export function StartupDialog({ open, onOpenChange }: StartupDialogProps) {
                     Automatic QPI calculation for each semester and cumulative
                   </p>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
                     <Database className="h-5 w-5 text-primary" />
                   </div>
@@ -78,7 +78,7 @@ export function StartupDialog({ open, onOpenChange }: StartupDialogProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <Upload className="h-4 w-4 text-primary" />
@@ -97,7 +97,7 @@ export function StartupDialog({ open, onOpenChange }: StartupDialogProps) {
                     Start with pre-designed course templates for common academic programs and customize as needed.
                   </p>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 sm:col-span-2 lg:col-span-1">
                   <div className="flex items-center gap-2">
                     <PlusCircle className="h-4 w-4 text-primary" />
                     <h4 className="font-medium text-sm">Start Fresh</h4>
@@ -132,11 +132,11 @@ export function StartupDialog({ open, onOpenChange }: StartupDialogProps) {
           </Alert>
 
           {/* Action Button */}
-          <div className="flex justify-center">
+          <div className="flex justify-center pt-2">
             <Button
               onClick={() => onOpenChange(false)}
               size="lg"
-              className="min-w-32"
+              className="w-full sm:w-auto min-w-32 touch-manipulation"
             >
               Get Started
             </Button>

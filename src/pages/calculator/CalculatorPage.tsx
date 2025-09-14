@@ -593,25 +593,25 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
         multiSelect={true}
       />
 
-      <div className="container mx-auto py-6 space-y-6">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Calculator className="h-8 w-8 text-primary" />
-            QPI Calculator
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+            <Calculator className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <span className="truncate">QPI Calculator</span>
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Track your grades and monitor your academic progress
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2">
           <Dialog open={isOverviewDialogOpen} onOpenChange={setIsOverviewDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Eye className="h-4 w-4 mr-2" />
-                Overview
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                <Eye className="h-4 w-4 sm:mr-2" />
+                <span className="sm:inline">Overview</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
@@ -655,19 +655,20 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
           <Button
             size="sm"
             onClick={() => setIsTemplateSelectorOpen(true)}
+            className="flex-1 sm:flex-none"
           >
-            <BookTemplate className="h-4 w-4 mr-2" />
-            Templates
+            <BookTemplate className="h-4 w-4 sm:mr-2" />
+            <span className="sm:inline">Templates</span>
           </Button>
 
           <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm">
-                <Upload className="h-4 w-4 mr-2" />
-                Import CSV
+              <Button size="sm" className="flex-1 sm:flex-none">
+                <Upload className="h-4 w-4 sm:mr-2" />
+                <span className="sm:inline">Import CSV</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl">
+            <DialogContent className="max-w-4xl max-h-[90vh] sm:max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Import Grade Data</DialogTitle>
               </DialogHeader>
@@ -688,16 +689,17 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
             size="sm"
             onClick={() => setIsExportDialogOpen(true)}
             disabled={grades.length === 0}
+            className="flex-1 sm:flex-none"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Export
+            <Download className="h-4 w-4 sm:mr-2" />
+            <span className="sm:inline">Export</span>
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
+              <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                <Settings className="h-4 w-4 sm:mr-2" />
+                <span className="sm:inline">Settings</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -723,9 +725,9 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
       </div>
 
       {/* Main Calculator Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Sidebar - Semester Navigation */}
-        <div className="space-y-4">
+        <div className="space-y-4 lg:order-1 order-2">
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -736,6 +738,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                     size="sm"
                     onClick={() => setIsAddSemesterDialogOpen(true)}
                     title="Add Semester"
+                    className="h-8 w-8 p-0"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -745,8 +748,10 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                       size="sm"
                       onClick={() => handleCreateTemplateFromAllSemesters()}
                       title="Create Template from All Semesters"
+                      className="h-8 w-8 p-0"
                     >
                       <BookTemplate className="h-4 w-4" />
+                      <span className="sm:inline">Create this semester as a template</span>
                     </Button>
                   )}
                 </div>
@@ -834,7 +839,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
         </div>
 
         {/* Main Content - Grade Table */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 lg:order-2 order-1">
           {currentSemester ? (
             <GradeTable
               semesterId={currentSemester.id}
@@ -848,13 +853,13 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
             />
           ) : (
             <Card>
-              <CardContent className="text-center py-12">
-                <Calculator className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <h3 className="font-semibold mb-2">No Semester Selected</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+              <CardContent className="text-center py-8 sm:py-12 px-4">
+                <Calculator className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="font-semibold mb-2 text-lg">No Semester Selected</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-sm mx-auto">
                   Select a semester from the sidebar to start calculating grades.
                 </p>
-                <Button onClick={() => setIsAddSemesterDialogOpen(true)}>
+                <Button onClick={() => setIsAddSemesterDialogOpen(true)} className="w-full sm:w-auto">
                   Create First Semester
                 </Button>
               </CardContent>
@@ -865,7 +870,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
 
       {/* Add Semester Dialog */}
       <Dialog open={isAddSemesterDialogOpen} onOpenChange={setIsAddSemesterDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md mx-4 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Semester</DialogTitle>
           </DialogHeader>
@@ -883,6 +888,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                 }))}
                 min="2000"
                 max="2030"
+                className="w-full"
               />
             </div>
 
@@ -894,7 +900,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                   setSemesterForm(prev => ({ ...prev, semesterType: value }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select semester type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -913,7 +919,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                   setSemesterForm(prev => ({ ...prev, yearLevel: parseInt(value) }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select year level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -926,14 +932,15 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
               </Select>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4">
               <Button
                 variant="outline"
                 onClick={() => setIsAddSemesterDialogOpen(false)}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
-              <Button onClick={handleCreateSemester}>
+              <Button onClick={handleCreateSemester} className="w-full sm:w-auto">
                 Create Semester
               </Button>
             </div>
@@ -985,7 +992,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
 
       {/* Export Dialog */}
       <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Export Grade Data</DialogTitle>
           </DialogHeader>
@@ -1059,7 +1066,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
 
       {/* Edit Semester Dialog */}
       <Dialog open={isEditSemesterDialogOpen} onOpenChange={setIsEditSemesterDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md mx-4 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Semester</DialogTitle>
           </DialogHeader>
@@ -1077,6 +1084,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                 }))}
                 min="2000"
                 max="2030"
+                className="w-full"
               />
             </div>
 
@@ -1088,7 +1096,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                   setSemesterForm(prev => ({ ...prev, semesterType: value }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select semester type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1107,7 +1115,7 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
                   setSemesterForm(prev => ({ ...prev, yearLevel: parseInt(value) }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select year level" />
                 </SelectTrigger>
                 <SelectContent>
@@ -1120,14 +1128,15 @@ export function CalculatorPage({ initialData }: CalculatorPageProps) {
               </Select>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-4">
               <Button
                 variant="outline"
                 onClick={() => setIsEditSemesterDialogOpen(false)}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
-              <Button onClick={handleUpdateSemester}>
+              <Button onClick={handleUpdateSemester} className="w-full sm:w-auto">
                 Update Semester
               </Button>
             </div>
